@@ -13,8 +13,3 @@ type Todo struct {
 	Done bool   `json:"done"`
 	UserId string  `json:"user"`
 }
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
