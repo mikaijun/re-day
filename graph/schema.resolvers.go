@@ -11,6 +11,7 @@ import (
 	"math/big"
 
 	"github.com/mikaijun/gqlgen-todos/graph/model"
+	"github.com/mikaijun/gqlgen-todos/loader"
 )
 
 // CreateTodo is the resolver for the createTodo field.
@@ -54,9 +55,11 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 
 // User is the resolver for the user field.
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	user := model.User{ID: obj.UserId}
-	r.DB.First(&user)
-	return &user, nil
+	user, err := loader.LoadUser(ctx, obj.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // Todos is the resolver for the todos field.
