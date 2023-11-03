@@ -3,7 +3,9 @@ BEGIN;
     id VARCHAR (255) UNIQUE NOT NULL PRIMARY KEY,
     text TEXT,
     done BOOL DEFAULT FALSE,
-    user_id VARCHAR (255)
+    user_id VARCHAR (255),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
   );
   CREATE INDEX on todos(id);
 COMMIT;

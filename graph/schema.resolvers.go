@@ -23,7 +23,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 		ID:     fmt.Sprintf("T%d", rand),
 		UserId: input.UserID,
 	}
-	r.DB.Debug().Create(&todo)
+	r.DB.Create(&todo)
 	return &todo, nil
 }
 
@@ -35,21 +35,21 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		ID:   fmt.Sprintf("U%d", rand),
 		Name: input.Name,
 	}
-	r.DB.Debug().Create(&user)
+	r.DB.Create(&user)
 	return &user, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	todos := []*model.Todo{}
-	r.DB.Debug().Find(&todos)
+	r.DB.Find(&todos)
 	return todos, nil
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	user := []*model.User{}
-	r.DB.Debug().Find(&user)
+	r.DB.Find(&user)
 	return user, nil
 }
 
@@ -60,6 +60,16 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 		return nil, err
 	}
 	return user, nil
+}
+
+// CrearedAt is the resolver for the crearedAt field.
+func (r *todoResolver) CrearedAt(ctx context.Context, obj *model.Todo) (string, error) {
+	panic(fmt.Errorf("not implemented: CrearedAt - crearedAt"))
+}
+
+// UpdatedAt is the resolver for the updatedAt field.
+func (r *todoResolver) UpdatedAt(ctx context.Context, obj *model.Todo) (string, error) {
+	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
 }
 
 // Todos is the resolver for the todos field.

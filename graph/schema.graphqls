@@ -1,8 +1,12 @@
+scalar Date
+
 type Todo {
   id: ID!
   text: String!
   done: Boolean!
   user: User!
+  crearedAt: Date!
+  updatedAt: Date!
 }
 
 type User {

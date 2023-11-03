@@ -25,7 +25,7 @@ func (u *TodoLoader) BatchGetTodos(ctx context.Context, keys dataloader.Keys) []
 	}
 
 	todosTemp := []*model.Todo{}
-	if err := u.DB.Debug().Where("user_id IN ?", userIDs).Find(&todosTemp).Error; err != nil {
+	if err := u.DB.Where("user_id IN ?", userIDs).Find(&todosTemp).Error; err != nil {
 		err := fmt.Errorf("fail get todos, %w", err)
 		log.Printf("%v\n", err)
 		return nil
