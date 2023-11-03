@@ -67,7 +67,7 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 
 // CreatedAt is the resolver for the created_at field.
 func (r *todoResolver) CreatedAt(ctx context.Context, obj *model.Todo) (string, error) {
-	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
 // UpdatedAt is the resolver for the updated_at field.
@@ -82,6 +82,16 @@ func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Tod
 		return nil, err
 	}
 	return todo, nil
+}
+
+// CreatedAt is the resolver for the created_at field.
+func (r *userResolver) CreatedAt(ctx context.Context, obj *model.User) (string, error) {
+	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
+}
+
+// UpdatedAt is the resolver for the updated_at field.
+func (r *userResolver) UpdatedAt(ctx context.Context, obj *model.User) (string, error) {
+	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
 // Mutation returns MutationResolver implementation.
