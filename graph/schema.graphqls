@@ -5,6 +5,8 @@ type Todo {
   text: String!
   done: Boolean!
   user: User!
+  created_at: String!
+  updated_at: String!
 }
 
 type User {

@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/mikaijun/gqlgen-todos/graph/model"
 	"github.com/mikaijun/gqlgen-todos/loader"
@@ -19,9 +20,11 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	//ランダムな数字の生成
 	rand, _ := rand.Int(rand.Reader, big.NewInt(100))
 	todo := model.Todo{
-		Text:   input.Text,
-		ID:     fmt.Sprintf("T%d", rand),
-		UserId: input.UserID,
+		Text:      input.Text,
+		ID:        fmt.Sprintf("T%d", rand),
+		UserId:    input.UserID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	r.DB.Create(&todo)
 	return &todo, nil
@@ -60,6 +63,16 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 		return nil, err
 	}
 	return user, nil
+}
+
+// CreatedAt is the resolver for the created_at field.
+func (r *todoResolver) CreatedAt(ctx context.Context, obj *model.Todo) (string, error) {
+	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+}
+
+// UpdatedAt is the resolver for the updated_at field.
+func (r *todoResolver) UpdatedAt(ctx context.Context, obj *model.Todo) (string, error) {
+	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
 // Todos is the resolver for the todos field.
