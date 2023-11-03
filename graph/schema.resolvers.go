@@ -62,16 +62,6 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 	return user, nil
 }
 
-// CrearedAt is the resolver for the crearedAt field.
-func (r *todoResolver) CrearedAt(ctx context.Context, obj *model.Todo) (string, error) {
-	panic(fmt.Errorf("not implemented: CrearedAt - crearedAt"))
-}
-
-// UpdatedAt is the resolver for the updatedAt field.
-func (r *todoResolver) UpdatedAt(ctx context.Context, obj *model.Todo) (string, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
-}
-
 // Todos is the resolver for the todos field.
 func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Todo, error) {
 	todo, err := loader.LoadTodo(ctx, obj.ID)

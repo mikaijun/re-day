@@ -25,7 +25,7 @@ func (u *UserLoader) BatchGetUsers(ctx context.Context, keys dataloader.Keys) []
 
 	usersTemp := []*model.User{}
 
-	if err := u.DB.Debug().Where("id IN ?", userIDs).Find(&usersTemp).Error; err != nil {
+	if err := u.DB.Where("id IN ?", userIDs).Find(&usersTemp).Error; err != nil {
 		err := fmt.Errorf("fail get users, %w", err)
 		log.Printf("%v\n", err)
 		return nil
