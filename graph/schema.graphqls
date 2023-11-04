@@ -28,6 +28,7 @@ type Action {
 type Query {
   tasks: [Task!]!
   users: [User!]!
+  actions: [Action!]!
 }
 
 input NewTask {

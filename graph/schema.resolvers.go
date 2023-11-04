@@ -84,6 +84,13 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	return user, nil
 }
 
+// Actions is the resolver for the actions field.
+func (r *queryResolver) Actions(ctx context.Context) ([]*model.Action, error) {
+	action := []*model.Action{}
+	r.DB.Find(&action)
+	return action, nil
+}
+
 // User is the resolver for the user field.
 func (r *taskResolver) User(ctx context.Context, obj *model.Task) (*model.User, error) {
 	user, err := loader.LoadUser(ctx, obj.UserId)
