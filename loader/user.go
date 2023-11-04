@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/graph-gophers/dataloader"
-	"github.com/mikaijun/gqlgen-todos/graph/model"
+	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"gorm.io/gorm"
 )
 

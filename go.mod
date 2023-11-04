@@ -1,4 +1,4 @@
-module github.com/mikaijun/gqlgen-todos
+module github.com/mikaijun/gqlgen-tasks
 
 go 1.21.2
 

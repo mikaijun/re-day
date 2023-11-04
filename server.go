@@ -9,9 +9,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/joho/godotenv"
-	"github.com/mikaijun/gqlgen-todos/db"
-	"github.com/mikaijun/gqlgen-todos/graph"
-	"github.com/mikaijun/gqlgen-todos/loader"
+	"github.com/mikaijun/gqlgen-tasks/db"
+	"github.com/mikaijun/gqlgen-tasks/graph"
+	"github.com/mikaijun/gqlgen-tasks/loader"
 )
 
 const defaultPort = "8080"

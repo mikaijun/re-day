@@ -1,5 +1,5 @@
 BEGIN;
-  CREATE TABLE IF NOT EXISTS todos(
+  CREATE TABLE IF NOT EXISTS tasks(
     id VARCHAR (255) UNIQUE NOT NULL PRIMARY KEY,
     text TEXT,
     done BOOL DEFAULT FALSE,
@@ -7,5 +7,5 @@ BEGIN;
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
   );
-  CREATE INDEX on todos(id);
+  CREATE INDEX on tasks(id);
 COMMIT;

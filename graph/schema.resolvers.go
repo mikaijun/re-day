@@ -11,23 +11,23 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/mikaijun/gqlgen-todos/graph/model"
-	"github.com/mikaijun/gqlgen-todos/loader"
+	"github.com/mikaijun/gqlgen-tasks/graph/model"
+	"github.com/mikaijun/gqlgen-tasks/loader"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+// CreateTask is the resolver for the createTask field.
+func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	//ランダムな数字の生成
 	rand, _ := rand.Int(rand.Reader, big.NewInt(100))
-	todo := model.Todo{
+	task := model.Task{
 		Text:      input.Text,
 		ID:        fmt.Sprintf("T%d", rand),
 		UserId:    input.UserID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	r.DB.Create(&todo)
-	return &todo, nil
+	r.DB.Create(&task)
+	return &task, nil
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -42,11 +42,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 	return &user, nil
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	todos := []*model.Todo{}
-	r.DB.Find(&todos)
-	return todos, nil
+// Tasks is the resolver for the tasks field.
+func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
+	tasks := []*model.Task{}
+	r.DB.Find(&tasks)
+	return tasks, nil
 }
 
 // Users is the resolver for the users field.
@@ -57,7 +57,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 }
 
 // User is the resolver for the user field.
-func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
+func (r *taskResolver) User(ctx context.Context, obj *model.Task) (*model.User, error) {
 	user, err := loader.LoadUser(ctx, obj.UserId)
 	if err != nil {
 		return nil, err
@@ -66,22 +66,22 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 }
 
 // CreatedAt is the resolver for the created_at field.
-func (r *todoResolver) CreatedAt(ctx context.Context, obj *model.Todo) (string, error) {
+func (r *taskResolver) CreatedAt(ctx context.Context, obj *model.Task) (string, error) {
 	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
 // UpdatedAt is the resolver for the updated_at field.
-func (r *todoResolver) UpdatedAt(ctx context.Context, obj *model.Todo) (string, error) {
+func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, error) {
 	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
-// Todos is the resolver for the todos field.
-func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Todo, error) {
-	todo, err := loader.LoadTodo(ctx, obj.ID)
+// Tasks is the resolver for the tasks field.
+func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
+	task, err := loader.LoadTask(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
-	return todo, nil
+	return task, nil
 }
 
 // CreatedAt is the resolver for the created_at field.
@@ -100,13 +100,13 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// Todo returns TodoResolver implementation.
-func (r *Resolver) Todo() TodoResolver { return &todoResolver{r} }
+// Task returns TaskResolver implementation.
+func (r *Resolver) Task() TaskResolver { return &taskResolver{r} }
 
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type todoResolver struct{ *Resolver }
+type taskResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
