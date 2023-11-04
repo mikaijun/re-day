@@ -20,7 +20,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	//ランダムな数字の生成
 	rand, _ := rand.Int(rand.Reader, big.NewInt(100))
 	task := model.Task{
-		Text:      input.Text,
+		Content:   input.Content,
 		ID:        fmt.Sprintf("T%d", rand),
 		UserId:    input.UserID,
 		CreatedAt: time.Now(),

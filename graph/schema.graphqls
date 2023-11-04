@@ -2,8 +2,7 @@ scalar DateTime
 
 type Task {
   id: ID!
-  text: String!
-  done: Boolean!
+  content: String!
   user: User!
   created_at: DateTime!
   updated_at: DateTime!
@@ -23,7 +22,7 @@ type Query {
 }
 
 input NewTask {
-  text: String!
+  content: String!
   userId: String!
 }
 
