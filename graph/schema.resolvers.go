@@ -6,12 +6,28 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/loader"
 )
+
+// Task is the resolver for the task field.
+func (r *actionResolver) Task(ctx context.Context, obj *model.Action) (*model.Task, error) {
+	panic(fmt.Errorf("not implemented: Task - task"))
+}
+
+// CreatedAt is the resolver for the created_at field.
+func (r *actionResolver) CreatedAt(ctx context.Context, obj *model.Action) (string, error) {
+	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
+}
+
+// UpdatedAt is the resolver for the updated_at field.
+func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (string, error) {
+	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+}
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
@@ -34,6 +50,20 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 	}
 	r.DB.Create(&user)
 	return &user, nil
+}
+
+// CreateAction is the resolver for the createAction field.
+func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
+	actions := model.Action{
+		ID:        uuid.New().String(),
+		TaskId:    input.TaskId,
+		Score:     input.Score,
+		Comment:   input.Comment,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	r.DB.Create(&actions)
+	return &actions, nil
 }
 
 // Tasks is the resolver for the tasks field.
@@ -88,6 +118,9 @@ func (r *userResolver) UpdatedAt(ctx context.Context, obj *model.User) (string, 
 	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
+// Action returns ActionResolver implementation.
+func (r *Resolver) Action() ActionResolver { return &actionResolver{r} }
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
@@ -100,7 +133,18 @@ func (r *Resolver) Task() TaskResolver { return &taskResolver{r} }
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
+type actionResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type taskResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *actionResolver) Score(ctx context.Context, obj *model.Action) (int, error) {
+	panic(fmt.Errorf("not implemented: Score - score"))
+}

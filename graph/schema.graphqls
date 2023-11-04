@@ -16,6 +16,15 @@ type User {
   updated_at: DateTime!
 }
 
+type Action {
+  id: ID!
+  score: Int!
+  comment: String!
+  task: Task!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
 type Query {
   tasks: [Task!]!
   users: [User!]!
@@ -30,7 +39,14 @@ input NewUser {
   name: String!
 }
 
+input NewAction {
+  taskId: String!
+  score: Int!
+  comment: String!
+}
+
 type Mutation {
   createTask(input: NewTask!): Task!
   createUser(input: NewUser!): User!
+  createAction(input: NewAction !): Action!
 }

@@ -69,3 +69,7 @@ models:
     fields:
       task:
         resolver: true
+  Action:
+    fields:
+      task:
+        resolver: true
