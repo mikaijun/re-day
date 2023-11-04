@@ -6,22 +6,18 @@ package graph
 
 import (
 	"context"
-	"crypto/rand"
-	"fmt"
-	"math/big"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/loader"
 )
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	//ランダムな数字の生成
-	rand, _ := rand.Int(rand.Reader, big.NewInt(100))
 	task := model.Task{
 		Content:   input.Content,
-		ID:        fmt.Sprintf("T%d", rand),
+		ID:        uuid.New().String(),
 		UserId:    input.UserID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -32,10 +28,8 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	//ランダムな値の生成
-	rand, _ := rand.Int(rand.Reader, big.NewInt(100))
 	user := model.User{
-		ID:   fmt.Sprintf("U%d", rand),
+		ID:   uuid.New().String(),
 		Name: input.Name,
 	}
 	r.DB.Create(&user)
