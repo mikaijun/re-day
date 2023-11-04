@@ -16,7 +16,11 @@ import (
 
 // Task is the resolver for the task field.
 func (r *actionResolver) Task(ctx context.Context, obj *model.Action) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented: Task - task"))
+	action, err := loader.LoadAction(ctx, obj.TaskId)
+	if err != nil {
+		return nil, err
+	}
+	return action, nil
 }
 
 // CreatedAt is the resolver for the created_at field.
