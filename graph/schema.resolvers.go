@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/loader"
+	"github.com/mikaijun/gqlgen-tasks/service"
 )
 
 // Task is the resolver for the task field.
@@ -57,7 +58,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // CreateAction is the resolver for the createAction field.
 func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
-	loader.GetLoaders2(ctx)
+	service.GetLoaders2(ctx)
 	actions := model.Action{
 		ID:        uuid.New().String(),
 		TaskId:    input.TaskId,
