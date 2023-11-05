@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
@@ -37,6 +38,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Authorization", "Bearer "+tokenString)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tokenString))
+}
+
+func GetUserId(token string) float64 {
+	tokenObj, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return []byte("my-secret-key"), nil
+	})
+
+	if err != nil {
+		fmt.Print(err)
+		return 0
+	}
+
+	claims := tokenObj.Claims.(jwt.MapClaims)
+	id := claims["id"]
+	return id.(float64)
 }
 
 // ContextからLoadersを取得する
