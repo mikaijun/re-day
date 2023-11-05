@@ -6,7 +6,6 @@ import (
 
 type NewTask struct {
 	Content string `json:"content"`
-	UserID  string `json:"userId"`
 }
 
 type Task struct {

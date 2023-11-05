@@ -35,10 +35,11 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
+	user := service.GetUserByContext(ctx)
 	task := model.Task{
 		Content:   input.Content,
 		ID:        uuid.New().String(),
-		UserId:    input.UserID,
+		UserId:    user.ID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -58,7 +59,6 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // CreateAction is the resolver for the createAction field.
 func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
-	service.GetUserByContext(ctx)
 	actions := model.Action{
 		ID:        uuid.New().String(),
 		TaskId:    input.TaskId,
