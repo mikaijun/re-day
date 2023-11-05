@@ -19,6 +19,9 @@ func GenerateToken(id int) (string, error) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	// ユーザートークンを生成する
 	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = jwt.MapClaims{
+		"id": 1,
+	}
 	tokenString, err := token.SignedString([]byte("my-secret-key"))
 	if err != nil {
 		// トークンの生成に失敗した場合

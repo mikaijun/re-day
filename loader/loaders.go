@@ -2,8 +2,10 @@ package loader
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/graph-gophers/dataloader"
 	"gorm.io/gorm"
 )
@@ -50,8 +52,21 @@ func Middleware(loaders *Loaders, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCtx := context.WithValue(r.Context(), loadersKey, loaders)
 		r = r.WithContext(nextCtx)
-		bearer := r.Header.Get("Authorization")
-		nextCtx2 := context.WithValue(r.Context(), authKey, bearer)
+		token := r.Header.Get("Authorization")
+		// JWT オブジェクトを作成します。
+		tokenObj, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+			return []byte("my-secret-key"), nil
+		})
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
+
+		// トークンのクレームからユーザー ID を取得します。
+		claims := tokenObj.Claims.(jwt.MapClaims)
+		id := claims["id"]
+		fmt.Print(id)
+		nextCtx2 := context.WithValue(r.Context(), authKey, "1")
 		r = r.WithContext(nextCtx2)
 		next.ServeHTTP(w, r)
 	})
