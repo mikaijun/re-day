@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/mikaijun/gqlgen-tasks/graph/model"
+	"gorm.io/gorm"
 )
 
 type ctxKey string
@@ -14,20 +16,10 @@ const (
 	AuthKey = ctxKey("auth")
 )
 
-func GenerateToken(id int) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
-	tokenString, err := token.SignedString([]byte("my-secret-key"))
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
-}
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = jwt.MapClaims{
-		"id": 1,
+		"id": "1550a82d-00f8-410c-9e82-e5e3cfe64e42",
 	}
 	tokenString, err := token.SignedString([]byte("my-secret-key"))
 	if err != nil {
@@ -40,22 +32,23 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(tokenString))
 }
 
-func GetUserId(token string) float64 {
+func GetUserByToken(db *gorm.DB, token string) (*model.User, error) {
 	tokenObj, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte("my-secret-key"), nil
 	})
 
 	if err != nil {
 		fmt.Print(err)
-		return 0
+		return nil, err
 	}
 
 	claims := tokenObj.Claims.(jwt.MapClaims)
 	id := claims["id"]
-	return id.(float64)
+	user := &model.User{}
+	db.Where("id = ?", id).First(user)
+	return user, nil
 }
 
-// ContextからLoadersを取得する
 func GetLoaders2(ctx context.Context) string {
 	return ctx.Value(AuthKey).(string)
 }

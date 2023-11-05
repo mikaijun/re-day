@@ -34,7 +34,7 @@ func main() {
 	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", middleware.Middleware(ldrs, srv))
+	http.Handle("/query", middleware.Middleware(ldrs, db, srv))
 	http.HandleFunc("/login", service.Login)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
