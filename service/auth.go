@@ -49,6 +49,6 @@ func GetUserByToken(db *gorm.DB, token string) (*model.User, error) {
 	return user, nil
 }
 
-func GetLoaders2(ctx context.Context) string {
-	return ctx.Value(AuthKey).(string)
+func GetUserByContext(ctx context.Context) *model.User {
+	return ctx.Value(AuthKey).(*model.User)
 }

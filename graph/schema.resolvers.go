@@ -58,7 +58,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // CreateAction is the resolver for the createAction field.
 func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
-	service.GetLoaders2(ctx)
+	service.GetUserByContext(ctx)
 	actions := model.Action{
 		ID:        uuid.New().String(),
 		TaskId:    input.TaskId,
