@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -11,15 +12,25 @@ import (
 )
 
 type ctxKey string
+type req struct {
+	Id string `json:"id"`
+}
 
 const (
 	AuthKey = ctxKey("auth")
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	dec := json.NewDecoder(r.Body)
+	req := &req{}
+	err := dec.Decode(req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = jwt.MapClaims{
-		"id": "1550a82d-00f8-410c-9e82-e5e3cfe64e42",
+		"id": req.Id,
 	}
 	tokenString, err := token.SignedString([]byte("my-secret-key"))
 	if err != nil {
