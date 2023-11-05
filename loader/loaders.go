@@ -12,6 +12,7 @@ type ctxKey string
 
 const (
 	loadersKey = ctxKey("dataloaders")
+	authKey    = ctxKey("auth")
 )
 
 // 各DataLoaderを取りまとめるstruct
@@ -49,6 +50,9 @@ func Middleware(loaders *Loaders, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCtx := context.WithValue(r.Context(), loadersKey, loaders)
 		r = r.WithContext(nextCtx)
+		bearer := r.Header.Get("Authorization")
+		nextCtx2 := context.WithValue(r.Context(), authKey, bearer)
+		r = r.WithContext(nextCtx2)
 		next.ServeHTTP(w, r)
 	})
 }
@@ -56,4 +60,9 @@ func Middleware(loaders *Loaders, next http.Handler) http.Handler {
 // ContextからLoadersを取得する
 func GetLoaders(ctx context.Context) *Loaders {
 	return ctx.Value(loadersKey).(*Loaders)
+}
+
+// ContextからLoadersを取得する
+func GetLoaders2(ctx context.Context) string {
+	return ctx.Value(authKey).(string)
 }
