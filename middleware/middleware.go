@@ -9,7 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func Middleware(loaders *loader.Loaders, db *gorm.DB, next http.Handler) http.Handler {
+func Middleware(db *gorm.DB, next http.Handler) http.Handler {
+	loaders := loader.NewLoaders(db)
 	loaders.UserLoader.ClearAll()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextLoaderCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
