@@ -7,7 +7,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
-	github.com/joho/godotenv v1.5.1
 	github.com/vektah/gqlparser/v2 v2.5.10
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
