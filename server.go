@@ -7,10 +7,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/mikaijun/gqlgen-tasks/api"
 	"github.com/mikaijun/gqlgen-tasks/db"
 	"github.com/mikaijun/gqlgen-tasks/graph"
 	"github.com/mikaijun/gqlgen-tasks/middleware"
-	"github.com/mikaijun/gqlgen-tasks/service"
 )
 
 const defaultPort = "8080"
@@ -26,8 +26,7 @@ func main() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", middleware.Middleware(db, srv))
-	http.HandleFunc("/login", service.Login)
-
+	api.Auth(db)
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
