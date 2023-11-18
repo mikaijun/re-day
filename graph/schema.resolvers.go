@@ -8,6 +8,7 @@ import (
 	"context"
 	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/loader"
@@ -31,6 +32,33 @@ func (r *actionResolver) CreatedAt(ctx context.Context, obj *model.Action) (stri
 // UpdatedAt is the resolver for the updated_at field.
 func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (string, error) {
 	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+}
+
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Token, error) {
+	user := &model.User{}
+	r.DB.Where("id = ?", input.ID).First(user)
+	// token := jwt.New(jwt.SigningMethodHS256)
+	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
+	jwtToken.Claims = jwt.MapClaims{
+		"user": user,
+		"exp":  time.Now().Add(time.Hour * 1).Unix(),
+	}
+	// 署名
+	var secretKey = "secret"
+	tokenString, err := jwtToken.SignedString([]byte(secretKey))
+	if err != nil {
+		return nil, err
+	}
+	token := &model.Token{
+		ID:           uuid.New().String(),
+		SignedString: tokenString,
+		UserId:       user.ID,
+		CreatedAt:    time.Now(),
+		ExpiresAt:    time.Now(),
+	}
+	r.DB.Create(token)
+	return token, nil
 }
 
 // CreateTask is the resolver for the createTask field.
@@ -111,6 +139,20 @@ func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, 
 	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
+// ExpiresAt is the resolver for the expires_at field.
+func (r *tokenResolver) ExpiresAt(ctx context.Context, obj *model.Token) (string, error) {
+	return obj.ExpiresAt.Format("2006-01-02 15:04:05"), nil
+}
+
+// User is the resolver for the user field.
+func (r *tokenResolver) User(ctx context.Context, obj *model.Token) (*model.User, error) {
+	user, err := loader.LoadUser(ctx, obj.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 // Tasks is the resolver for the tasks field.
 func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
 	task, err := loader.LoadTask(ctx, obj.ID)
@@ -142,6 +184,9 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // Task returns TaskResolver implementation.
 func (r *Resolver) Task() TaskResolver { return &taskResolver{r} }
 
+// Token returns TokenResolver implementation.
+func (r *Resolver) Token() TokenResolver { return &tokenResolver{r} }
+
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
@@ -149,4 +194,5 @@ type actionResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type taskResolver struct{ *Resolver }
+type tokenResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }

@@ -1,5 +1,11 @@
 scalar DateTime
 
+type Token {
+  signed_string: String!
+  expires_at: DateTime!
+  user: User!
+}
+
 type Task {
   id: ID!
   content: String!
@@ -31,6 +37,10 @@ type Query {
   actions: [Action!]!
 }
 
+input LoginInput {
+  id: String!
+}
+
 input NewTask {
   content: String!
 }
@@ -46,6 +56,7 @@ input NewAction {
 }
 
 type Mutation {
+  login(input: LoginInput!): Token!
   createTask(input: NewTask!): Task!
   createUser(input: NewUser!): User!
   createAction(input: NewAction !): Action!

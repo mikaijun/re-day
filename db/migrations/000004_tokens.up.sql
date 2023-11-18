@@ -1,7 +1,7 @@
 BEGIN;
   CREATE TABLE IF NOT EXISTS tokens(
     id UUID NOT NULL PRIMARY KEY,
-    token VARCHAR(255) NOT NULL,
+    signed_string text NOT NULL,
     user_id UUID NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
