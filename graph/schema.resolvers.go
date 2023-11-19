@@ -6,14 +6,12 @@ package graph
 
 import (
 	"context"
-	"errors"
-	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/loader"
+	"github.com/mikaijun/gqlgen-tasks/service"
 )
 
 // Task is the resolver for the task field.
@@ -37,32 +35,7 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
-	user := &model.User{}
-	if err := r.DB.Where("id = ?", input.ID).First(user).Error; err != nil {
-		return "", errors.New("IDが存在しません")
-	}
-
-	expirie := time.Now().AddDate(0, 0, 1)
-	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
-	jwtToken.Claims = jwt.MapClaims{
-		"user_id": user.ID,
-		"exp":     expirie.Unix(),
-	}
-	tokenString, err := jwtToken.SignedString([]byte(os.Getenv("SIGNED_KEY")))
-	if err != nil {
-		return "", errors.New("トークン生成できませんでした")
-	}
-	authExpirie := &model.AuthExpirie{
-		ID:        uuid.New().String(),
-		UserId:    user.ID,
-		ExpiresAt: expirie,
-	}
-
-	if err := r.DB.Create(authExpirie).Error; err != nil {
-		return "", errors.New("authExpirie fall error")
-	}
-
-	return tokenString, nil
+	return service.LoginFunc(r.DB, input.ID)
 }
 
 // CreateTask is the resolver for the createTask field.
