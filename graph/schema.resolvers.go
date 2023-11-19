@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -37,9 +38,7 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
 	user := &model.User{}
-	sqlErr := r.DB.Where("id = ?", input.ID).First(user)
-
-	if sqlErr == nil {
+	if err := r.DB.Where("id = ?", input.ID).First(user).Error; err != nil {
 		return "", errors.New("IDが存在しません")
 	}
 
@@ -49,18 +48,20 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (s
 		"user_id": user.ID,
 		"exp":     expirie.Unix(),
 	}
-	// 署名
-	var secretKey = "secret"
-	tokenString, err := jwtToken.SignedString([]byte(secretKey))
+	tokenString, err := jwtToken.SignedString([]byte(os.Getenv("SIGNED_KEY")))
 	if err != nil {
-		return "", err
+		return "", errors.New("トークン生成できませんでした")
 	}
 	authExpirie := &model.AuthExpirie{
 		ID:        uuid.New().String(),
 		UserId:    user.ID,
 		ExpiresAt: expirie,
 	}
-	r.DB.Create(authExpirie)
+
+	if err := r.DB.Create(authExpirie).Error; err != nil {
+		return "", errors.New("authExpirie fall error")
+	}
+
 	return tokenString, nil
 }
 

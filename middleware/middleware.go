@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -27,8 +28,7 @@ func Middleware(db *gorm.DB, next http.Handler) http.Handler {
 
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 		tokenObj, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			var secretKey = "secret"
-			return []byte(secretKey), nil
+			return []byte(os.Getenv("SIGNED_KEY")), nil
 		})
 
 		if err != nil {

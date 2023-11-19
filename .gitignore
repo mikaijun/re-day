@@ -1,1 +1,4 @@
 **/graph/generated.go
+devcontainer/*
+*.env
+.devcontainer/.env
