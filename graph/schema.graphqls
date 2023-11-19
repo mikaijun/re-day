@@ -51,6 +51,7 @@ input NewAction {
 
 type Mutation {
   login(input: LoginInput!): String!
+  logout: Boolean!
   createTask(input: NewTask!): Task!
   createUser(input: NewUser!): User!
   createAction(input: NewAction !): Action!

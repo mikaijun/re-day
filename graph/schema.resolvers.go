@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,6 +37,16 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
 	return service.LoginFunc(r.DB, input.ID)
+}
+
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	userId := ctx.Value(model.AuthKey).(string)
+	authExpirie := &model.AuthExpirie{}
+	if err := r.DB.Where("user_id = ?", userId).Delete(&authExpirie).Error; err != nil {
+		return false, errors.New("ログアウトできませんでした")
+	}
+	return true, nil
 }
 
 // CreateTask is the resolver for the createTask field.
