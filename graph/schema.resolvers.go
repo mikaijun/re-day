@@ -52,6 +52,7 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	userId := ctx.Value(model.AuthKey).(string)
+
 	task := model.Task{
 		Content:   input.Content,
 		ID:        uuid.New().String(),
@@ -59,7 +60,10 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	r.DB.Create(&task)
+
+	if err := r.DB.Create(&task).Error; err != nil {
+		return nil, errors.New("タスクを生成できませんでした")
+	}
 	return &task, nil
 }
 
@@ -83,7 +87,9 @@ func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewActi
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	r.DB.Create(&actions)
+	if err := r.DB.Create(&actions).Error; err != nil {
+		return nil, errors.New("行動を生成できませんでした")
+	}
 	return &actions, nil
 }
 

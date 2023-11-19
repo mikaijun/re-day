@@ -14,7 +14,7 @@ import (
 func LoginFunc(db *gorm.DB, id string) (string, error) {
 	user := &model.User{}
 	if err := db.Where("id = ?", id).First(user).Error; err != nil {
-		return "", errors.New("IDが存在しません")
+		return "", errors.New("ユーザーが存在しません")
 	}
 
 	expirie := time.Now().AddDate(0, 0, 1)
@@ -34,7 +34,7 @@ func LoginFunc(db *gorm.DB, id string) (string, error) {
 	}
 
 	if err := db.Create(authExpirie).Error; err != nil {
-		return "", errors.New("authExpirie fall error")
+		return "", errors.New("既にログイン済みです")
 	}
 
 	return tokenString, nil
