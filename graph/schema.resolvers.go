@@ -6,13 +6,13 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/loader"
-	"github.com/mikaijun/gqlgen-tasks/service"
 )
 
 // Task is the resolver for the task field.
@@ -35,39 +35,42 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Token, error) {
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
 	user := &model.User{}
-	r.DB.Where("id = ?", input.ID).First(user)
-	// token := jwt.New(jwt.SigningMethodHS256)
+	sqlErr := r.DB.Where("id = ?", input.ID).First(user)
+
+	if sqlErr == nil {
+		return "", errors.New("IDが存在しません")
+	}
+
+	expirie := time.Now().AddDate(0, 0, 1)
 	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
 	jwtToken.Claims = jwt.MapClaims{
-		"user": user,
-		"exp":  time.Now().Add(time.Hour * 1).Unix(),
+		"user_id": user.ID,
+		"exp":     expirie.Unix(),
 	}
 	// 署名
 	var secretKey = "secret"
 	tokenString, err := jwtToken.SignedString([]byte(secretKey))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	token := &model.Token{
-		ID:           uuid.New().String(),
-		SignedString: tokenString,
-		UserId:       user.ID,
-		CreatedAt:    time.Now(),
-		ExpiresAt:    time.Now(),
+	authExpirie := &model.AuthExpirie{
+		ID:        uuid.New().String(),
+		UserId:    user.ID,
+		ExpiresAt: expirie,
 	}
-	r.DB.Create(token)
-	return token, nil
+	r.DB.Create(authExpirie)
+	return tokenString, nil
 }
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	user := service.GetUserByContext(ctx)
+	userId := ctx.Value(model.AuthKey).(string)
 	task := model.Task{
 		Content:   input.Content,
 		ID:        uuid.New().String(),
-		UserId:    user.ID,
+		UserId:    userId,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -139,20 +142,6 @@ func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, 
 	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
 }
 
-// ExpiresAt is the resolver for the expires_at field.
-func (r *tokenResolver) ExpiresAt(ctx context.Context, obj *model.Token) (string, error) {
-	return obj.ExpiresAt.Format("2006-01-02 15:04:05"), nil
-}
-
-// User is the resolver for the user field.
-func (r *tokenResolver) User(ctx context.Context, obj *model.Token) (*model.User, error) {
-	user, err := loader.LoadUser(ctx, obj.UserId)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 // Tasks is the resolver for the tasks field.
 func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
 	task, err := loader.LoadTask(ctx, obj.ID)
@@ -184,9 +173,6 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // Task returns TaskResolver implementation.
 func (r *Resolver) Task() TaskResolver { return &taskResolver{r} }
 
-// Token returns TokenResolver implementation.
-func (r *Resolver) Token() TokenResolver { return &tokenResolver{r} }
-
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
@@ -194,5 +180,4 @@ type actionResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type taskResolver struct{ *Resolver }
-type tokenResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
