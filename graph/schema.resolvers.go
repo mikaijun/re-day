@@ -13,7 +13,8 @@ import (
 
 // Task is the resolver for the task field.
 func (r *actionResolver) Task(ctx context.Context, obj *model.Action) (*model.Task, error) {
-	return service.FindTaskByAction(ctx, obj)
+	service := service.GetServices(ctx)
+	return service.TaskService.FindTaskByAction(ctx, obj)
 }
 
 // CreatedAt is the resolver for the created_at field.
@@ -38,7 +39,8 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	return service.CreateTask(ctx, input.Content, r.DB)
+	service := service.GetServices(ctx)
+	return service.TaskService.CreateTask(ctx, input.Content)
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -48,12 +50,14 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // CreateAction is the resolver for the createAction field.
 func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
-	return service.CreateAction(input, r.DB)
+	service := service.GetServices(ctx)
+	return service.ActionService.CreateAction(input)
 }
 
 // Tasks is the resolver for the tasks field.
 func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
-	return service.FindTasks(r.DB)
+	service := service.GetServices(ctx)
+	return service.TaskService.FindTasks()
 }
 
 // Users is the resolver for the users field.
@@ -63,7 +67,8 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 
 // Actions is the resolver for the actions field.
 func (r *queryResolver) Actions(ctx context.Context) ([]*model.Action, error) {
-	return service.FindActions(r.DB)
+	service := service.GetServices(ctx)
+	return service.ActionService.FindActions()
 }
 
 // User is the resolver for the user field.
@@ -83,7 +88,8 @@ func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, 
 
 // Tasks is the resolver for the tasks field.
 func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
-	return service.FindTasksByUser(ctx, obj)
+	service := service.GetServices(ctx)
+	return service.TaskService.FindTasksByUser(ctx, obj)
 }
 
 // CreatedAt is the resolver for the created_at field.

@@ -9,7 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateAction(input model.NewAction, db *gorm.DB) (*model.Action, error) {
+type ActionService struct {
+	db *gorm.DB
+}
+
+func (s *ActionService) CreateAction(input model.NewAction) (*model.Action, error) {
 	actions := model.Action{
 		ID:        uuid.New().String(),
 		TaskId:    input.TaskId,
@@ -18,14 +22,14 @@ func CreateAction(input model.NewAction, db *gorm.DB) (*model.Action, error) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	if err := db.Create(&actions).Error; err != nil {
+	if err := s.db.Create(&actions).Error; err != nil {
 		return nil, errors.New("行動を生成できませんでした")
 	}
 	return &actions, nil
 }
 
-func FindActions(db *gorm.DB) ([]*model.Action, error) {
+func (s *ActionService) FindActions() ([]*model.Action, error) {
 	action := []*model.Action{}
-	db.Find(&action)
+	s.db.Find(&action)
 	return action, nil
 }

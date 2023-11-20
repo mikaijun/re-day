@@ -9,6 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
+	"github.com/mikaijun/gqlgen-tasks/graph/service"
 	"github.com/mikaijun/gqlgen-tasks/loader"
 	"gorm.io/gorm"
 )
@@ -16,9 +17,13 @@ import (
 func Middleware(db *gorm.DB, next http.Handler) http.Handler {
 	loaders := loader.NewLoaders(db)
 	loaders.UserLoader.ClearAll()
+	services := service.NewServices(db)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextLoaderCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
 		r = r.WithContext(nextLoaderCtx)
+		nextServicesCtx := context.WithValue(r.Context(), service.ServicesKey, services)
+		r = r.WithContext(nextServicesCtx)
 		tokenString := r.Header.Get("Authorization")
 
 		if tokenString == "" {
