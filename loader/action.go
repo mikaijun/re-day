@@ -48,7 +48,7 @@ func (u *ActionLoader) BatchGetActions(ctx context.Context, keys dataloader.Keys
 	return output
 }
 
-func LoadAction(ctx context.Context, TaskID string) (*model.Task, error) {
+func LoadActionByTaskId(ctx context.Context, TaskID string) (*model.Task, error) {
 	loaders := GetLoaders(ctx)
 	thunk := loaders.ActionLoader.Load(ctx, dataloader.StringKey(TaskID))
 	result, err := thunk()

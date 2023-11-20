@@ -6,22 +6,14 @@ package graph
 
 import (
 	"context"
-	"errors"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
-	"github.com/mikaijun/gqlgen-tasks/loader"
-	"github.com/mikaijun/gqlgen-tasks/service"
+	"github.com/mikaijun/gqlgen-tasks/graph/service"
 )
 
 // Task is the resolver for the task field.
 func (r *actionResolver) Task(ctx context.Context, obj *model.Action) (*model.Task, error) {
-	action, err := loader.LoadAction(ctx, obj.TaskId)
-	if err != nil {
-		return nil, err
-	}
-	return action, nil
+	return service.FindTaskByAction(ctx, obj)
 }
 
 // CreatedAt is the resolver for the created_at field.
@@ -36,91 +28,47 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
-	return service.LoginFunc(r.DB, input.ID)
+	return service.Login(r.DB, input.ID)
 }
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	userId := ctx.Value(model.AuthKey).(string)
-	authExpirie := &model.AuthExpirie{}
-	if err := r.DB.Where("user_id = ?", userId).Delete(&authExpirie).Error; err != nil {
-		return false, errors.New("ログアウトできませんでした")
-	}
-	return true, nil
+	return service.Logout(ctx, r.DB)
 }
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	userId := ctx.Value(model.AuthKey).(string)
-
-	task := model.Task{
-		Content:   input.Content,
-		ID:        uuid.New().String(),
-		UserId:    userId,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	if err := r.DB.Create(&task).Error; err != nil {
-		return nil, errors.New("タスクを生成できませんでした")
-	}
-	return &task, nil
+	return service.CreateTask(ctx, input.Content, r.DB)
 }
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	user := model.User{
-		ID:   uuid.New().String(),
-		Name: input.Name,
-	}
-	r.DB.Create(&user)
-	return &user, nil
+	return service.CreateUser(input.Name, r.DB)
 }
 
 // CreateAction is the resolver for the createAction field.
 func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
-	actions := model.Action{
-		ID:        uuid.New().String(),
-		TaskId:    input.TaskId,
-		Score:     input.Score,
-		Comment:   input.Comment,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-	if err := r.DB.Create(&actions).Error; err != nil {
-		return nil, errors.New("行動を生成できませんでした")
-	}
-	return &actions, nil
+	return service.CreateAction(input, r.DB)
 }
 
 // Tasks is the resolver for the tasks field.
 func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
-	tasks := []*model.Task{}
-	r.DB.Find(&tasks)
-	return tasks, nil
+	return service.FindTasks(r.DB)
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	user := []*model.User{}
-	r.DB.Find(&user)
-	return user, nil
+	return service.FindUsers(r.DB)
 }
 
 // Actions is the resolver for the actions field.
 func (r *queryResolver) Actions(ctx context.Context) ([]*model.Action, error) {
-	action := []*model.Action{}
-	r.DB.Find(&action)
-	return action, nil
+	return service.FindActions(r.DB)
 }
 
 // User is the resolver for the user field.
 func (r *taskResolver) User(ctx context.Context, obj *model.Task) (*model.User, error) {
-	user, err := loader.LoadUser(ctx, obj.UserId)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return service.FindUserByTask(ctx, obj)
 }
 
 // CreatedAt is the resolver for the created_at field.
@@ -135,11 +83,7 @@ func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, 
 
 // Tasks is the resolver for the tasks field.
 func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
-	task, err := loader.LoadTask(ctx, obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	return task, nil
+	return service.FindTasksByUser(ctx, obj)
 }
 
 // CreatedAt is the resolver for the created_at field.
