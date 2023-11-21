@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -14,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func _getToken(tokenString string, w http.ResponseWriter) (*jwt.Token, error) {
+func _getToken(tokenString string) (*jwt.Token, error) {
 	if tokenString == "" {
 		return nil, nil
 	}
@@ -24,7 +25,6 @@ func _getToken(tokenString string, w http.ResponseWriter) (*jwt.Token, error) {
 	})
 
 	if err != nil {
-		http.Error(w, `{"errors":[{"message":"ヘッダーが無効です"}]}`, http.StatusBadRequest)
 		return nil, err
 	}
 
@@ -38,8 +38,7 @@ func _getUserId(token *jwt.Token, db *gorm.DB, w http.ResponseWriter) (string, e
 	db.Where("user_id = ?", userId).First(authExpirie)
 
 	if authExpirie.ExpiresAt.Before(time.Now()) {
-		http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
-		return "", nil
+		return "", errors.New("認証が無効です")
 	}
 	return userId.(string), nil
 }
@@ -47,15 +46,20 @@ func _getUserId(token *jwt.Token, db *gorm.DB, w http.ResponseWriter) (string, e
 func Middleware(db *gorm.DB, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
-		token, err := _getToken(tokenString, w)
-		if token == nil || err != nil {
-			next.ServeHTTP(w, r)
+		token, err := _getToken(tokenString)
+
+		if token == nil {
+			return
+		}
+
+		if err != nil {
+			http.Error(w, `{"errors":[{"message":"ヘッダーが無効です"}]}`, http.StatusBadRequest)
 			return
 		}
 
 		userId, err := _getUserId(token, db, w)
 		if err != nil {
-			next.ServeHTTP(w, r)
+			http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
 			return
 		}
 
