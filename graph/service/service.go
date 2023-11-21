@@ -17,10 +17,10 @@ type Services struct {
 	TaskService   *TaskService
 }
 
-func NewServices(db *gorm.DB) *Services {
+func NewServices(db *gorm.DB, ctx context.Context) *Services {
 
 	actionService := &ActionService{db}
-	taskService := &TaskService{db}
+	taskService := &TaskService{db, ctx}
 	services := &Services{
 		ActionService: actionService,
 		TaskService:   taskService,

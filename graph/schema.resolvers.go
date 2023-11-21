@@ -14,7 +14,7 @@ import (
 // Task is the resolver for the task field.
 func (r *actionResolver) Task(ctx context.Context, obj *model.Action) (*model.Task, error) {
 	service := service.GetServices(ctx)
-	return service.TaskService.FindTaskByAction(ctx, obj)
+	return service.TaskService.FindTaskByAction(obj)
 }
 
 // CreatedAt is the resolver for the created_at field.
@@ -40,7 +40,7 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	service := service.GetServices(ctx)
-	return service.TaskService.CreateTask(ctx, input.Content)
+	return service.TaskService.CreateTask(input)
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -89,7 +89,7 @@ func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, 
 // Tasks is the resolver for the tasks field.
 func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
 	service := service.GetServices(ctx)
-	return service.TaskService.FindTasksByUser(ctx, obj)
+	return service.TaskService.FindTasksByUser(obj)
 }
 
 // CreatedAt is the resolver for the created_at field.

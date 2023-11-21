@@ -31,7 +31,7 @@ func _getToken(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func _getUserId(token *jwt.Token, db *gorm.DB, w http.ResponseWriter) (string, error) {
+func _getUserId(token *jwt.Token, db *gorm.DB) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	userId := claims["user_id"]
 	authExpirie := &model.AuthExpirie{}
@@ -57,20 +57,20 @@ func Middleware(db *gorm.DB, next http.Handler) http.Handler {
 			return
 		}
 
-		userId, err := _getUserId(token, db, w)
+		userId, err := _getUserId(token, db)
 		if err != nil {
 			http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
 			return
 		}
 
 		loaders := loader.NewLoaders(db)
-		services := service.NewServices(db)
 		loaders.UserLoader.ClearAll()
+		nextCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
+		nextCtx = context.WithValue(nextCtx, model.AuthKey, userId)
 
-		nextLoaderCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
-		nextServicesCtx := context.WithValue(nextLoaderCtx, service.ServicesKey, services)
-		nextUserCtx := context.WithValue(nextServicesCtx, model.AuthKey, userId)
+		services := service.NewServices(db, nextCtx)
+		nextCtx = context.WithValue(nextCtx, service.ServicesKey, services)
 
-		next.ServeHTTP(w, r.WithContext(nextUserCtx))
+		next.ServeHTTP(w, r.WithContext(nextCtx))
 	})
 }
