@@ -14,45 +14,59 @@ import (
 	"gorm.io/gorm"
 )
 
+func _getToken(tokenString string, w http.ResponseWriter) (*jwt.Token, error) {
+	if tokenString == "" {
+		return nil, nil
+	}
+	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SIGNED_KEY")), nil
+	})
+
+	if err != nil {
+		http.Error(w, `{"errors":[{"message":"ヘッダーが無効です"}]}`, http.StatusBadRequest)
+		return nil, err
+	}
+
+	return token, nil
+}
+
+func _getUserId(token *jwt.Token, db *gorm.DB, w http.ResponseWriter) (string, error) {
+	claims := token.Claims.(jwt.MapClaims)
+	userId := claims["user_id"]
+	authExpirie := &model.AuthExpirie{}
+	db.Where("user_id = ?", userId).First(authExpirie)
+
+	if authExpirie.ExpiresAt.Before(time.Now()) {
+		http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
+		return "", nil
+	}
+	return userId.(string), nil
+}
+
 func Middleware(db *gorm.DB, next http.Handler) http.Handler {
-	loaders := loader.NewLoaders(db)
-	loaders.UserLoader.ClearAll()
-	services := service.NewServices(db)
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nextLoaderCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
-		r = r.WithContext(nextLoaderCtx)
-		nextServicesCtx := context.WithValue(r.Context(), service.ServicesKey, services)
-		r = r.WithContext(nextServicesCtx)
 		tokenString := r.Header.Get("Authorization")
-
-		if tokenString == "" {
+		token, err := _getToken(tokenString, w)
+		if token == nil || err != nil {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-		tokenObj, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("SIGNED_KEY")), nil
-		})
-
+		userId, err := _getUserId(token, db, w)
 		if err != nil {
-			http.Error(w, `{"errors":[{"message":"ヘッダーが無効です"}]}`, http.StatusBadRequest)
+			next.ServeHTTP(w, r)
 			return
 		}
 
-		claims := tokenObj.Claims.(jwt.MapClaims)
-		userId := claims["user_id"]
-		authExpirie := &model.AuthExpirie{}
-		db.Where("user_id = ?", userId).First(authExpirie)
+		loaders := loader.NewLoaders(db)
+		services := service.NewServices(db)
+		loaders.UserLoader.ClearAll()
 
-		if authExpirie.ExpiresAt.Before(time.Now()) {
-			http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
-			return
-		}
+		nextLoaderCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
+		nextServicesCtx := context.WithValue(nextLoaderCtx, service.ServicesKey, services)
+		nextUserCtx := context.WithValue(nextServicesCtx, model.AuthKey, userId)
 
-		nextUserCtx := context.WithValue(r.Context(), model.AuthKey, userId)
-		r = r.WithContext(nextUserCtx)
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(nextUserCtx))
 	})
 }
