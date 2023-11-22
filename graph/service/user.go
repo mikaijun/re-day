@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 	"os"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 )
 
 func Login(db *gorm.DB, id string) (string, error) {
+	log.Printf("%v\n", 'a')
 	user := &model.User{}
 	if err := db.Where("id = ?", id).First(user).Error; err != nil {
 		return "", errors.New("ユーザーが存在しません")

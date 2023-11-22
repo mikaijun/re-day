@@ -44,29 +44,27 @@ func _getUserId(token *jwt.Token, db *gorm.DB) (string, error) {
 }
 
 func Middleware(db *gorm.DB, next http.Handler) http.Handler {
+	loaders := loader.NewLoaders(db)
+	loaders.UserLoader.ClearAll()
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		token, err := _getToken(tokenString)
-
-		if token == nil {
-			return
-		}
+		nextCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
 
 		if err != nil {
 			http.Error(w, `{"errors":[{"message":"ヘッダーが無効です"}]}`, http.StatusBadRequest)
 			return
 		}
 
-		userId, err := _getUserId(token, db)
-		if err != nil {
-			http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
-			return
+		if token != nil {
+			userId, err := _getUserId(token, db)
+			if err != nil {
+				http.Error(w, `{"errors":[{"message":"認証が無効です"}]}`, http.StatusBadRequest)
+				return
+			}
+			nextCtx = context.WithValue(nextCtx, model.AuthKey, userId)
 		}
-
-		loaders := loader.NewLoaders(db)
-		loaders.UserLoader.ClearAll()
-		nextCtx := context.WithValue(r.Context(), loader.LoadersKey, loaders)
-		nextCtx = context.WithValue(nextCtx, model.AuthKey, userId)
 
 		services := service.NewServices(db, nextCtx)
 		nextCtx = context.WithValue(nextCtx, service.ServicesKey, services)
