@@ -29,12 +29,14 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
-	return service.Login(r.DB, input.ID)
+	service := service.GetServices(ctx)
+	return service.UserService.Login(input.ID)
 }
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	return service.Logout(ctx, r.DB)
+	service := service.GetServices(ctx)
+	return service.UserService.Logout()
 }
 
 // CreateTask is the resolver for the createTask field.
@@ -45,7 +47,8 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	return service.CreateUser(input.Name, r.DB)
+	service := service.GetServices(ctx)
+	return service.UserService.CreateUser(input.Name)
 }
 
 // CreateAction is the resolver for the createAction field.
@@ -62,7 +65,8 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	return service.FindUsers(r.DB)
+	service := service.GetServices(ctx)
+	return service.UserService.FindUsers()
 }
 
 // Actions is the resolver for the actions field.
@@ -73,7 +77,8 @@ func (r *queryResolver) Actions(ctx context.Context) ([]*model.Action, error) {
 
 // User is the resolver for the user field.
 func (r *taskResolver) User(ctx context.Context, obj *model.Task) (*model.User, error) {
-	return service.FindUserByTask(ctx, obj)
+	service := service.GetServices(ctx)
+	return service.UserService.FindUserByTask(obj)
 }
 
 // CreatedAt is the resolver for the created_at field.

@@ -15,15 +15,17 @@ const (
 type Services struct {
 	ActionService *ActionService
 	TaskService   *TaskService
+	UserService   *UserService
 }
 
 func NewServices(db *gorm.DB, ctx context.Context) *Services {
-
 	actionService := &ActionService{db}
 	taskService := &TaskService{db, ctx}
+	userService := &UserService{db, ctx}
 	services := &Services{
 		ActionService: actionService,
 		TaskService:   taskService,
+		UserService:   userService,
 	}
 	return services
 }

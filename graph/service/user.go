@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
 	"os"
 	"time"
 
@@ -14,10 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func Login(db *gorm.DB, id string) (string, error) {
-	log.Printf("%v\n", 'a')
+type UserService struct {
+	db  *gorm.DB
+	ctx context.Context
+}
+
+func (s *UserService) Login(id string) (string, error) {
 	user := &model.User{}
-	if err := db.Where("id = ?", id).First(user).Error; err != nil {
+	if err := s.db.Where("id = ?", id).First(user).Error; err != nil {
 		return "", errors.New("ユーザーが存在しません")
 	}
 
@@ -37,39 +40,39 @@ func Login(db *gorm.DB, id string) (string, error) {
 		ExpiresAt: expirie,
 	}
 
-	if err := db.Create(authExpirie).Error; err != nil {
+	if err := s.db.Create(authExpirie).Error; err != nil {
 		return "", errors.New("既にログイン済みです")
 	}
 
 	return tokenString, nil
 }
 
-func Logout(ctx context.Context, db *gorm.DB) (bool, error) {
-	userId := ctx.Value(model.AuthKey).(string)
+func (s *UserService) Logout() (bool, error) {
+	userId := s.ctx.Value(model.AuthKey).(string)
 	authExpirie := &model.AuthExpirie{}
-	if err := db.Where("user_id = ?", userId).Delete(&authExpirie).Error; err != nil {
+	if err := s.db.Where("user_id = ?", userId).Delete(&authExpirie).Error; err != nil {
 		return false, errors.New("ログアウトできませんでした")
 	}
 	return true, nil
 }
 
-func CreateUser(name string, db *gorm.DB) (*model.User, error) {
+func (s *UserService) CreateUser(name string) (*model.User, error) {
 	user := model.User{
 		ID:   uuid.New().String(),
 		Name: name,
 	}
-	db.Create(&user)
+	s.db.Create(&user)
 	return &user, nil
 }
 
-func FindUsers(db *gorm.DB) ([]*model.User, error) {
+func (s *UserService) FindUsers() ([]*model.User, error) {
 	user := []*model.User{}
-	db.Find(&user)
+	s.db.Find(&user)
 	return user, nil
 }
 
-func FindUserByTask(ctx context.Context, task *model.Task) (*model.User, error) {
-	user, err := loader.LoadUser(ctx, task.UserId)
+func (s *UserService) FindUserByTask(task *model.Task) (*model.User, error) {
+	user, err := loader.LoadUser(s.ctx, task.UserId)
 	if err != nil {
 		return nil, err
 	}
