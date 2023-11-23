@@ -32,12 +32,6 @@ func _getToken(tokenString string) (*jwt.Token, error) {
 func _getUserId(token *jwt.Token, db *gorm.DB) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	userId := claims["user_id"]
-	// authExpirie := &model.AuthExpirie{}
-	// db.Where("user_id = ?", userId).First(authExpirie)
-
-	// if authExpirie.ExpiresAt.Before(time.Now()) {
-	// 	return "", errors.New("認証が無効です")
-	// }
 	return userId.(string), nil
 }
 

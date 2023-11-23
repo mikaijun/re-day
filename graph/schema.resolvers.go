@@ -27,18 +27,6 @@ func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (stri
 	return service.FormatStringToDate(obj.UpdatedAt), nil
 }
 
-// Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
-	service := service.GetServices(ctx)
-	return service.UserService.Login(input.ID)
-}
-
-// Logout is the resolver for the logout field.
-func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	service := service.GetServices(ctx)
-	return service.UserService.Logout()
-}
-
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	service := service.GetServices(ctx)
