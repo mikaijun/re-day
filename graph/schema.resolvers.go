@@ -19,12 +19,12 @@ func (r *actionResolver) Task(ctx context.Context, obj *model.Action) (*model.Ta
 
 // CreatedAt is the resolver for the created_at field.
 func (r *actionResolver) CreatedAt(ctx context.Context, obj *model.Action) (string, error) {
-	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
+	return service.FormatStringToDate(obj.CreatedAt), nil
 }
 
 // UpdatedAt is the resolver for the updated_at field.
 func (r *actionResolver) UpdatedAt(ctx context.Context, obj *model.Action) (string, error) {
-	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+	return service.FormatStringToDate(obj.UpdatedAt), nil
 }
 
 // Login is the resolver for the login field.
@@ -83,12 +83,12 @@ func (r *taskResolver) User(ctx context.Context, obj *model.Task) (*model.User, 
 
 // CreatedAt is the resolver for the created_at field.
 func (r *taskResolver) CreatedAt(ctx context.Context, obj *model.Task) (string, error) {
-	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
+	return service.FormatStringToDate(obj.CreatedAt), nil
 }
 
 // UpdatedAt is the resolver for the updated_at field.
 func (r *taskResolver) UpdatedAt(ctx context.Context, obj *model.Task) (string, error) {
-	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+	return service.FormatStringToDate(obj.UpdatedAt), nil
 }
 
 // Tasks is the resolver for the tasks field.
@@ -99,12 +99,12 @@ func (r *userResolver) Tasks(ctx context.Context, obj *model.User) ([]*model.Tas
 
 // CreatedAt is the resolver for the created_at field.
 func (r *userResolver) CreatedAt(ctx context.Context, obj *model.User) (string, error) {
-	return obj.CreatedAt.Format("2006-01-02 15:04:05"), nil
+	return service.FormatStringToDate(obj.CreatedAt), nil
 }
 
 // UpdatedAt is the resolver for the updated_at field.
 func (r *userResolver) UpdatedAt(ctx context.Context, obj *model.User) (string, error) {
-	return obj.UpdatedAt.Format("2006-01-02 15:04:05"), nil
+	return service.FormatStringToDate(obj.UpdatedAt), nil
 }
 
 // Action returns ActionResolver implementation.
