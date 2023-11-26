@@ -10,6 +10,12 @@ type NewAction struct {
 	Comment string `json:"comment"`
 }
 
+type UpdateAction struct {
+	ActionId string `json:"actionId"`
+	Score    int    `json:"score"`
+	Comment  string `json:"comment"`
+}
+
 type Action struct {
 	ID        string    `json:"id"`
 	TaskId    string    `json:"task"`

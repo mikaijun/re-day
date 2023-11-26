@@ -42,6 +42,22 @@ func (s *TaskService) CreateTask(newTask model.NewTask) (*model.Task, error) {
 	return &task, nil
 }
 
+func (s *TaskService) UpdateTask(updateTask model.UpdateTask) (*model.Task, error) {
+	task := model.Task{}
+
+	if err := s.db.Where("id = ?", updateTask.TaskId).First(&task).Error; err != nil {
+		return nil, errors.New("指定したタスクが存在しません")
+	}
+
+	task.Content = updateTask.Content
+
+	if err := s.db.Save(&task).Error; err != nil {
+		return nil, errors.New("タスクを更新できませんでした")
+	}
+
+	return &task, nil
+}
+
 func (s *TaskService) FindTasks() ([]*model.Task, error) {
 	tasks := []*model.Task{}
 	s.db.Find(&tasks)

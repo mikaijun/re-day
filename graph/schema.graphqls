@@ -35,6 +35,11 @@ input NewTask {
   content: String!
 }
 
+input UpdateTask {
+  taskId: String!
+  content: String!
+}
+
 input NewUser {
   name: String!
 }
@@ -45,8 +50,16 @@ input NewAction {
   comment: String!
 }
 
+input UpdateAction {
+  actionId: String!
+  score: Int!
+  comment: String!
+}
+
 type Mutation {
   createTask(input: NewTask!): Task!
+  updateTask(input: UpdateTask!): Task!
   createUser(input: NewUser!): User!
-  createAction(input: NewAction !): Action!
+  createAction(input: NewAction!): Action!
+  updateAction(input: UpdateAction!): Action!
 }

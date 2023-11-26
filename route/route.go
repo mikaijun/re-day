@@ -15,7 +15,7 @@ import (
 	"github.com/mikaijun/gqlgen-tasks/graph/service"
 )
 
-type LoginUser struct {
+type User struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
@@ -44,9 +44,10 @@ func Route() {
 		req := &req{}
 		dec.Decode(req)
 
-		user := &LoginUser{}
+		user := &User{}
 		if err := db.Where("id = ?", req.Id).First(user).Error; err != nil {
 			http.Error(w, "IDが間違ってます", http.StatusBadRequest)
+			return
 		}
 
 		token := jwt.New(jwt.GetSigningMethod("HS256"))

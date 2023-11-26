@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/graph/service"
@@ -33,6 +34,12 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	return service.TaskService.CreateTask(input)
 }
 
+// UpdateTask is the resolver for the updateTask field.
+func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTask) (*model.Task, error) {
+	service := service.GetServices(ctx)
+	return service.TaskService.UpdateTask(input)
+}
+
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
 	service := service.GetServices(ctx)
@@ -43,6 +50,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewAction) (*model.Action, error) {
 	service := service.GetServices(ctx)
 	return service.ActionService.CreateAction(input)
+}
+
+// UpdateAction is the resolver for the updateAction field.
+func (r *mutationResolver) UpdateAction(ctx context.Context, input model.UpdateAction) (*model.Action, error) {
+	panic(fmt.Errorf("not implemented: UpdateAction - updateAction"))
 }
 
 // Tasks is the resolver for the tasks field.
