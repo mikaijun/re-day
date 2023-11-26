@@ -28,6 +28,23 @@ func (s *ActionService) CreateAction(input model.NewAction) (*model.Action, erro
 	return &actions, nil
 }
 
+func (s *ActionService) UpdateAction(input model.UpdateAction) (*model.Action, error) {
+	action := model.Action{}
+
+	if err := s.db.Where("id = ?", input.ActionId).First(&action).Error; err != nil {
+		return nil, errors.New("指定した行動が存在しません")
+	}
+
+	action.Comment = input.Comment
+	action.Score = input.Score
+
+	if err := s.db.Save(&action).Error; err != nil {
+		return nil, errors.New("行動を更新できませんでした")
+	}
+
+	return &action, nil
+}
+
 func (s *ActionService) FindActions() ([]*model.Action, error) {
 	action := []*model.Action{}
 	s.db.Find(&action)

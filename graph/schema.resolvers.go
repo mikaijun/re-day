@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/graph/service"
@@ -54,7 +53,8 @@ func (r *mutationResolver) CreateAction(ctx context.Context, input model.NewActi
 
 // UpdateAction is the resolver for the updateAction field.
 func (r *mutationResolver) UpdateAction(ctx context.Context, input model.UpdateAction) (*model.Action, error) {
-	panic(fmt.Errorf("not implemented: UpdateAction - updateAction"))
+	service := service.GetServices(ctx)
+	return service.ActionService.UpdateAction(input)
 }
 
 // Tasks is the resolver for the tasks field.
