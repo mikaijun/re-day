@@ -12,9 +12,15 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mikaijun/gqlgen-tasks/db"
 	"github.com/mikaijun/gqlgen-tasks/graph"
-	"github.com/mikaijun/gqlgen-tasks/graph/model"
 	"github.com/mikaijun/gqlgen-tasks/graph/service"
 )
+
+type LoginUser struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 
 type DisableToken struct {
 	Token     string    `json:"token"`
@@ -38,7 +44,7 @@ func Route() {
 		req := &req{}
 		dec.Decode(req)
 
-		user := &model.User{}
+		user := &LoginUser{}
 		if err := db.Where("id = ?", req.Id).First(user).Error; err != nil {
 			http.Error(w, "IDが間違ってます", http.StatusBadRequest)
 		}
