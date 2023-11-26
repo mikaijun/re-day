@@ -5,11 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/mikaijun/gqlgen-tasks/db"
-	"github.com/mikaijun/gqlgen-tasks/graph"
-	"github.com/mikaijun/gqlgen-tasks/middleware"
 	"github.com/mikaijun/gqlgen-tasks/route"
 )
 
@@ -21,12 +16,7 @@ func main() {
 		port = defaultPort
 	}
 
-	db := db.ConnectGORM()
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{DB: db}}))
-
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	route.Route(db)
-	http.Handle("/query", middleware.Middleware(db, srv))
+	route.Route()
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

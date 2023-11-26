@@ -7,9 +7,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/mikaijun/gqlgen-tasks/db"
+	"github.com/mikaijun/gqlgen-tasks/graph"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
-	"gorm.io/gorm"
+	"github.com/mikaijun/gqlgen-tasks/middleware"
 )
 
 type DisableToken struct {
@@ -21,7 +25,14 @@ type req struct {
 	Id string `json:"id"`
 }
 
-func Route(db *gorm.DB) {
+func Route() {
+	db := db.ConnectGORM()
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{DB: db}}))
+
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+
+	http.Handle("/query", middleware.Middleware(db, srv))
+
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 		req := &req{}
