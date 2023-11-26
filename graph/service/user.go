@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/mikaijun/gqlgen-tasks/graph/loader"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
-	"github.com/mikaijun/gqlgen-tasks/loader"
 	"gorm.io/gorm"
 )
 

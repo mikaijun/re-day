@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/mikaijun/gqlgen-tasks/graph/loader"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
-	"github.com/mikaijun/gqlgen-tasks/loader"
 	"gorm.io/gorm"
 )
 
