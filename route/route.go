@@ -13,7 +13,7 @@ import (
 	"github.com/mikaijun/gqlgen-tasks/db"
 	"github.com/mikaijun/gqlgen-tasks/graph"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
-	"github.com/mikaijun/gqlgen-tasks/middleware"
+	"github.com/mikaijun/gqlgen-tasks/graph/service"
 )
 
 type DisableToken struct {
@@ -31,7 +31,7 @@ func Route() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 
-	http.Handle("/query", middleware.Middleware(db, srv))
+	http.Handle("/query", service.Middleware(db, srv))
 
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)

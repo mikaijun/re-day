@@ -1,4 +1,4 @@
-package middleware
+package service
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mikaijun/gqlgen-tasks/graph/model"
-	"github.com/mikaijun/gqlgen-tasks/graph/service"
 	"github.com/mikaijun/gqlgen-tasks/loader"
 	"gorm.io/gorm"
 )
@@ -58,8 +57,8 @@ func Middleware(db *gorm.DB, next http.Handler) http.Handler {
 			nextCtx = context.WithValue(nextCtx, model.AuthKey, userId)
 		}
 
-		services := service.NewServices(db, nextCtx)
-		nextCtx = context.WithValue(nextCtx, service.ServicesKey, services)
+		services := NewServices(db, nextCtx)
+		nextCtx = context.WithValue(nextCtx, ServicesKey, services)
 
 		next.ServeHTTP(w, r.WithContext(nextCtx))
 	})
